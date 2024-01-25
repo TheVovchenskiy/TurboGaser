@@ -4,6 +4,7 @@ from typing import Type
 
 from src.project_manager import ProjectManager
 from src.utils.errors import print_error
+from src.prompt_manager import PromptManager
 
 COMMAND_DEST = 'command'
 
@@ -106,16 +107,20 @@ class DeleteProjectCommand(Command):
         )
 
     def execute(self, args: argparse.Namespace):
-        try:
-            ProjectManager.delete_project(
-                args.project_name,
-            )
-            print(f"Project '{args.project_name}' successfully deleted")
-        except Exception as e:
-            print_error(
-                "an unexpected error occured "
-                f"while deleting the project: {e}"
-            )
+        prompt_res = PromptManager.yes_no(
+            f"Are you sure you want to delete '{args.project_name}' project?"
+        )
+        if prompt_res:
+            try:
+                ProjectManager.delete_project(
+                    args.project_name,
+                )
+                print(f"Project '{args.project_name}' successfully deleted")
+            except Exception as e:
+                print_error(
+                    "an unexpected error occured "
+                    f"while deleting the project: {e}"
+                )
 
 
 class ListProjectsCommand(Command):
