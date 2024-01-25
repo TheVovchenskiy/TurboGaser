@@ -11,10 +11,11 @@ PROJECTS_LIST_KEY = 'projects_list'
 class ConfigManager:
     @staticmethod
     def _save_config(current_project_path: str | None, projects_list: list[str]):
+        """Save config with new data"""
         with open(CONFIG_FILE, 'w') as file:
             json.dump(
                 {
-                    CURRENT_PROJECT_KEY: current_project_path,
+                    CURRENT_PROJECT_KEY: os.path.normpath(current_project_path) if current_project_path is not None else None,
                     PROJECTS_LIST_KEY: projects_list,
                 },
                 file,
@@ -37,19 +38,9 @@ class ConfigManager:
         if config is not None:
             projects_list = config.get(PROJECTS_LIST_KEY, [])
 
-        projects_list.append(project_path)
+        projects_list.append(os.path.normpath(project_path))
 
         ConfigManager._save_config(project_path, projects_list)
-
-    # @staticmethod
-    # def remove_current_project():
-    #     """Set current project to None"""
-    #     config = ConfigManager._read_config()
-    #     projects_list = []
-    #     if config is not None:
-    #         projects_list = config.get(PROJECTS_LIST_KEY, [])
-
-    #     ConfigManager._save_config(None, projects_list)
 
     @staticmethod
     def get_current_project() -> str | None:
@@ -84,7 +75,7 @@ class ConfigManager:
             ConfigManager._save_config(current_project, projects_list)
 
     @staticmethod
-    def set_current_project(proj_name: str):
+    def set_current_project(project_path: str):
         """Set existing project as current"""
         pass
         # project_path = find_project_path(proj_name)

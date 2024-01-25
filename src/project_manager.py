@@ -35,6 +35,9 @@ class ProjectManager:
         if project_dir is None:
             project_dir = os.getcwd()
 
+        if not os.path.isabs(project_dir):
+            project_dir = os.path.join(os.getcwd(), project_dir)
+
         project_path = os.path.join(project_dir, project_name)
         try:
             os.mkdir(project_path)
@@ -84,3 +87,16 @@ class ProjectManager:
                 ConfigManager.delete_project_path_from_list(project_path)
                 shutil.rmtree(project_path)
                 break
+
+    @staticmethod
+    def list_projects() -> list[str]:
+        """Returns list with all the valid project names"""
+        res = []
+        projects_list = ConfigManager.get_projects_list()
+        for project_path in projects_list:
+            if ProjectManager.is_project(project_path):
+                res.append(ProjectManager._get_project_name(project_path))
+            else:
+                ConfigManager.delete_project_path_from_list(project_path)
+
+        return res

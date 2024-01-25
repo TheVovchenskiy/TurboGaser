@@ -59,6 +59,12 @@ class ArgsParser:
             help='Name of the new project',
         )
 
+        # subcommand 'list' for 'project' command
+        self.new_project_parser = self.project_subparsers.add_parser(
+            'list',
+            help='All available projects',
+        )
+
     def _handle_project_command(self, args: argparse.Namespace):
         if args.project_command == 'new':
             try:
@@ -91,6 +97,20 @@ class ArgsParser:
                 print_error(
                     "an unexpected error occured "
                     f"while deleting the project: {e}"
+                )
+
+        elif args.project_command == 'list':
+            try:
+                list = ProjectManager.list_projects()
+                if len(list) == 0:
+                    print('No projects available')
+                else:
+                    print('Available projects:', end='\n\t')
+                    print(*list, sep='\n\t')
+            except Exception as e:
+                print_error(
+                    "an unexpected error occured "
+                    f"while listing projects: {e}"
                 )
 
         else:
