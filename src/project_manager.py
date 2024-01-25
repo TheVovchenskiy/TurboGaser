@@ -100,3 +100,18 @@ class ProjectManager:
                 ConfigManager.delete_project_path_from_list(project_path)
 
         return res
+
+    @staticmethod
+    def set_current_project(project_name: str):
+        """Set new current project"""
+        projects_list = ConfigManager.get_projects_list()
+        for project_path in projects_list:
+            if ProjectManager.is_project(project_path) and ProjectManager._get_project_name(project_path) == project_name:
+                ConfigManager.save_current_project(project_path)
+
+    @staticmethod
+    def get_current_project() -> str:
+        """Returns current project's name"""
+        current_project_path = ConfigManager.get_current_project()
+        if current_project_path and ProjectManager.is_project(current_project_path):
+            return ProjectManager._get_project_name(current_project_path)

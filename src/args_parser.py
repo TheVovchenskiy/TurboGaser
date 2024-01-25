@@ -12,6 +12,8 @@ PROJECT_COMMAND = 'project'
 PROJECT_NEW_SUBCOMMAND = 'new'
 PROJECT_DELETE_SUBCOMMAND = 'delete'
 PROJECT_LIST_SUBCOMMAND = 'list'
+PROJECT_SET_CURRENT_SUBCOMMAND = 'set_current'
+PROJECT_GET_CURRENT_SUBCOMMAND = 'get_current'
 
 
 class Command(abc.ABC):
@@ -137,6 +139,49 @@ class ListProjectsCommand(Command):
             )
 
 
+class SetCurrentProjectsCommand(Command):
+    """Set project with given name as current"""
+
+    def add_arguments(self, subparser: argparse.ArgumentParser):
+        subparser.add_argument(
+            'project_name',
+            type=str,
+            help='Name of the project',
+        )
+
+    def execute(self, args: argparse.Namespace):
+        try:
+            ProjectManager.set_current_project(args.project_name)
+            print(f"Project '{args.project_name}' set as current")
+        except Exception as e:
+            print_error(
+                "an unexpected error occured "
+                f"while setting project as currnet: {e}"
+            )
+
+
+class GetCurrentProjectsCommand(Command):
+    """Get current project"""
+
+    def add_arguments(self, subparser: argparse.ArgumentParser):
+        pass
+
+    def execute(self, args: argparse.Namespace):
+        try:
+            current_project = ProjectManager.get_current_project()
+            if current_project:
+                print("Current project is: ")
+                print(f"\t{current_project}")
+            else:
+                print("No current project")
+
+        except Exception as e:
+            print_error(
+                "an unexpected error occured "
+                f"while getting currnet project: {e}"
+            )
+
+
 class CommandFactory:
     """Factory for creating commands"""
 
@@ -196,10 +241,25 @@ class ArgsParser:
 
 # Commands/subcommands registering
 project_command = ProjectCommand()
-project_command.add_subcommand(PROJECT_NEW_SUBCOMMAND, NewProjectCommand())
 project_command.add_subcommand(
-    PROJECT_DELETE_SUBCOMMAND, DeleteProjectCommand()
+    PROJECT_NEW_SUBCOMMAND,
+    NewProjectCommand(),
 )
-project_command.add_subcommand(PROJECT_LIST_SUBCOMMAND, ListProjectsCommand())
+project_command.add_subcommand(
+    PROJECT_DELETE_SUBCOMMAND,
+    DeleteProjectCommand(),
+)
+project_command.add_subcommand(
+    PROJECT_LIST_SUBCOMMAND,
+    ListProjectsCommand(),
+)
+project_command.add_subcommand(
+    PROJECT_SET_CURRENT_SUBCOMMAND,
+    SetCurrentProjectsCommand(),
+)
+project_command.add_subcommand(
+    PROJECT_GET_CURRENT_SUBCOMMAND,
+    GetCurrentProjectsCommand(),
+)
 
 CommandFactory.add_command(PROJECT_COMMAND, lambda: project_command)

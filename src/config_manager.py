@@ -38,7 +38,8 @@ class ConfigManager:
         if config is not None:
             projects_list = config.get(PROJECTS_LIST_KEY, [])
 
-        projects_list.append(os.path.normpath(project_path))
+        if project_path not in projects_list:
+            projects_list.append(os.path.normpath(project_path))
 
         ConfigManager._save_config(project_path, projects_list)
 
@@ -78,6 +79,8 @@ class ConfigManager:
     def set_current_project(project_path: str):
         """Set existing project as current"""
         pass
+        # config = ConfigManager._read_config()
+        
         # project_path = find_project_path(proj_name)
         # if project_path and os.path.exists(project_path):
         #     save_current_project_path(project_path)
