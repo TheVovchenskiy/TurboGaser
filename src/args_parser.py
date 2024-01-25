@@ -48,6 +48,17 @@ class ArgsParser:
             help='Directory of the new project',
         )
 
+        # subcommand 'delete' for 'project' command
+        self.new_project_parser = self.project_subparsers.add_parser(
+            'delete',
+            help='Delete project',
+        )
+        self.new_project_parser.add_argument(
+            'project_name',
+            type=str,
+            help='Name of the new project',
+        )
+
     def _handle_project_command(self, args: argparse.Namespace):
         if args.project_command == 'new':
             try:
@@ -68,6 +79,18 @@ class ArgsParser:
                 print_error(
                     "an unexpected error occured "
                     f"while creating the project: {e}"
+                )
+
+        elif args.project_command == 'delete':
+            try:
+                ProjectManager.delete_project(
+                    args.project_name,
+                )
+                print(f"Project '{args.project_name}' successfully deleted")
+            except Exception as e:
+                print_error(
+                    "an unexpected error occured "
+                    f"while deleting the project: {e}"
                 )
 
         else:
