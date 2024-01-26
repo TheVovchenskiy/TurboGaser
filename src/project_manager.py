@@ -71,11 +71,21 @@ class ProjectManager:
         return None
 
     @staticmethod
-    def _get_project_name(project_path) -> str | None:
+    def _get_project_name(project_path: str) -> str | None:
         if ProjectManager.is_project(project_path):
             project_metadata = ProjectManager._get_project_metadata(
                 project_path)
             return project_metadata.get(PROJECT_NAME_KEY)
+        return None
+
+    @staticmethod
+    def get_project_path(project_name: str) -> str | None:
+        """Returns path to project"""
+        projects_list = ConfigManager.get_projects_list()
+        for project_path in projects_list:
+            if ProjectManager._get_project_name(project_path) == project_name:
+                return project_path
+
         return None
 
     @staticmethod
@@ -110,8 +120,17 @@ class ProjectManager:
                 ConfigManager.save_current_project(project_path)
 
     @staticmethod
-    def get_current_project() -> str:
-        """Returns current project's name"""
+    def get_current_project_name() -> str | None:
+        """Returns current project's name. Returns None if there is no
+            current project"""
         current_project_path = ConfigManager.get_current_project()
         if current_project_path and ProjectManager.is_project(current_project_path):
             return ProjectManager._get_project_name(current_project_path)
+
+    @staticmethod
+    def get_current_project_path() -> str | None:
+        """Returns current project's path. Returns None if there is no
+            current project"""
+        current_project_path = ConfigManager.get_current_project()
+        if current_project_path and ProjectManager.is_project(current_project_path):
+            return current_project_path

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from unittest.mock import patch
+# from unittest.mock import patch
 
 import pytest
 
-from src.prompt_manager import PromptManager
+from src.utils.prompt_manager import PromptManager
 
 
 @dataclass
@@ -30,7 +30,7 @@ def test_yes_no_sucess_true(mocker):
 
     for test_case in test_data:
         mocker = mocker.patch(
-            'src.prompt_manager.input',
+            'src.utils.prompt_manager.input',
             return_value=test_case.users_input,
         )
         actual = PromptManager.yes_no('')
@@ -49,7 +49,7 @@ def test_yes_no_sucess_false(mocker):
 
     for test_case in test_data:
         mocker = mocker.patch(
-            'src.prompt_manager.input',
+            'src.utils.prompt_manager.input',
             return_value=test_case.users_input,
         )
         actual = PromptManager.yes_no('')

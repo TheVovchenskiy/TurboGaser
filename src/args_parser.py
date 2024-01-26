@@ -1,10 +1,11 @@
 import abc
 import argparse
 from typing import Type
+from src.calc.cycle.cycle_manager import CycleManager
 
 from src.project_manager import ProjectManager
 from src.utils.errors import print_error
-from src.prompt_manager import PromptManager
+from src.utils.prompt_manager import PromptManager
 
 COMMAND_DEST = 'command'
 
@@ -15,6 +16,11 @@ PROJECT_DELETE_SUBCOMMAND = 'delete'
 PROJECT_LIST_SUBCOMMAND = 'list'
 PROJECT_SET_CURRENT_SUBCOMMAND = 'set_current'
 PROJECT_GET_CURRENT_SUBCOMMAND = 'get_current'
+
+CYCLE_SUBCOMMAND_DEST = 'cycle_command'
+CYCLE_COMMAND = 'cycle'
+CYCLE_NEW_SUBCOMMAND = 'new'
+CYCLE_RUN_SUBCOMMAND = 'run'
 
 
 class Command(abc.ABC):
@@ -173,7 +179,7 @@ class GetCurrentProjectsCommand(Command):
 
     def execute(self, args: argparse.Namespace):
         try:
-            current_project = ProjectManager.get_current_project()
+            current_project = ProjectManager.get_current_project_name()
             if current_project:
                 print("Current project is: ")
                 print(f"\t{current_project}")
@@ -184,6 +190,62 @@ class GetCurrentProjectsCommand(Command):
             print_error(
                 "an unexpected error occured "
                 f"while getting currnet project: {e}"
+            )
+
+
+class CycleCommand(Command):
+    """Manage cycle calculations"""
+
+    def __init__(self) -> None:
+        self.subcommands: dict[str, Command] = {}
+
+    def add_subcommand(self, name: str, subcommand: Command):
+        self.subcommands[name] = subcommand
+
+    def add_arguments(self, parser: argparse.ArgumentParser):
+        project_subparsers = parser.add_subparsers(
+            dest=CYCLE_SUBCOMMAND_DEST,
+            help='Cycle calc actions',
+        )
+
+        for name, subcommand in self.subcommands.items():
+            subparser = project_subparsers.add_parser(
+                name,
+                help=subcommand.__doc__,
+            )
+            subcommand.add_arguments(subparser)
+
+    def execute(self, args: argparse.Namespace):
+        if args.cycle_command in self.subcommands:
+            self.subcommands[args.cycle_command].execute(args)
+        else:
+            print_error("Unknown cycle calc command")
+
+
+class NewCycleCalcCommand(Command):
+    """Create a new cycle calculation"""
+
+    def add_arguments(self, subparser: argparse.ArgumentParser):
+        pass
+
+    def execute(self, args: argparse.Namespace):
+        try:
+            current_project_path = ProjectManager.get_current_project_path()
+            if current_project_path:
+                calc_id = CycleManager.create_calc(current_project_path)
+                print(
+                    f"Cycle calculation with id = {calc_id} "
+                    "successfully created"
+                )
+            else:
+                print(
+                    'No current project selected, please select an existing '
+                    'or create a new one'
+                )
+        except Exception as e:
+            print_error(
+                "an unexpected error occured "
+                f"while creating the project: {e}"
             )
 
 
@@ -267,4 +329,11 @@ project_command.add_subcommand(
     GetCurrentProjectsCommand(),
 )
 
+cycle_command = CycleCommand()
+cycle_command.add_subcommand(
+    CYCLE_NEW_SUBCOMMAND,
+    NewCycleCalcCommand(),
+)
+
 CommandFactory.add_command(PROJECT_COMMAND, lambda: project_command)
+CommandFactory.add_command(CYCLE_COMMAND, lambda: cycle_command)
