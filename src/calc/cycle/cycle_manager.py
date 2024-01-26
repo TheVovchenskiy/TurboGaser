@@ -6,7 +6,7 @@ from src.calc.config_manager import ConfigManager
 
 PROJECT_CYCLE_DIR = 'cycle'
 CALC_PREFIX = 'calc_'
-CYCLE_CONFIG_FILE = './src/calc/cycle/config/input.json'
+CYCLE_CONFIG_FILE = './src/calc/cycle/config/input.py'
 CYCLE_CONFIG_PATH = os.path.normpath(
     os.path.join(os.getcwd(), CYCLE_CONFIG_FILE)
 )
